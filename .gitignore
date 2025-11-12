@@ -9,3 +9,11 @@ test_heatshrink_static
 *.dSYM
 *.exe
 benchmark_out/
+
+# ESP-IDF build artifacts
+build/
+sdkconfig
+sdkconfig.old
+*.pyc
+dependencies.lock
+managed_components/

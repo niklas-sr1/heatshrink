@@ -1,0 +1,86 @@
+Example ESP-IDF Project Structure Using Heatshrink Component
+=============================================================
+
+Project Directory Structure:
+----------------------------
+my_esp32_project/
+├── CMakeLists.txt
+├── components/
+│   └── heatshrink/          # Copy entire heatshrink repo here
+│       ├── CMakeLists.txt
+│       ├── Kconfig
+│       ├── heatshrink_encoder.c
+│       ├── heatshrink_decoder.c
+│       └── ... (other heatshrink files)
+├── main/
+│   ├── CMakeLists.txt
+│   └── main.c
+└── sdkconfig
+
+
+Project Root CMakeLists.txt:
+-----------------------------
+cmake_minimum_required(VERSION 3.5)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(my_esp32_project)
+
+
+Main Component CMakeLists.txt (main/CMakeLists.txt):
+------------------------------------------------------
+idf_component_register(
+    SRCS "main.c"
+    INCLUDE_DIRS "."
+    REQUIRES heatshrink
+)
+
+
+Example main.c:
+---------------
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "heatshrink_encoder.h"
+#include "heatshrink_decoder.h"
+
+void app_main(void)
+{
+    printf("Heatshrink ESP-IDF Example\n");
+    
+    // Example with dynamic allocation
+    heatshrink_encoder *hse = heatshrink_encoder_alloc(8, 4);
+    if (hse) {
+        printf("Encoder allocated successfully\n");
+        // Use the encoder...
+        heatshrink_encoder_free(hse);
+    }
+    
+    // Example with decoder
+    heatshrink_decoder *hsd = heatshrink_decoder_alloc(256, 8, 4);
+    if (hsd) {
+        printf("Decoder allocated successfully\n");
+        // Use the decoder...
+        heatshrink_decoder_free(hsd);
+    }
+}
+
+
+Configuration:
+--------------
+Run: idf.py menuconfig
+
+Navigate to: Component config -> Heatshrink Configuration
+
+Options available:
+- Use dynamic memory allocation (default: Y)
+- Static Configuration (when dynamic is N)
+  - Static window size (bits)
+  - Static lookahead size (bits) 
+  - Static input buffer size (bytes)
+- Use index for faster compression (default: Y)
+- Enable debugging logs (default: N)
+
+
+Build and Flash:
+----------------
+idf.py build
+idf.py -p /dev/ttyUSB0 flash monitor
