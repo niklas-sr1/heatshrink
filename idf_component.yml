@@ -4,8 +4,7 @@ url: "https://github.com/atomicobject/heatshrink"
 documentation: "https://github.com/atomicobject/heatshrink/blob/master/README.md"
 
 maintainers:
-  - name: "Scott Vokes"
-    email: "vokes.s@gmail.com"
+  - "Scott Vokes <vokes.s@gmail.com>"
 
 tags:
   - compression
