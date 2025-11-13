@@ -1,0 +1,70 @@
+menu "Heatshrink Configuration"
+
+    config HEATSHRINK_DYNAMIC_ALLOC
+        bool "Use dynamic memory allocation"
+        default y
+        help
+            Enable dynamic memory allocation for heatshrink encoder/decoder.
+            When enabled, heatshrink_encoder_alloc/heatshrink_decoder_alloc
+            and heatshrink_encoder_free/heatshrink_decoder_free functions
+            are available for runtime allocation.
+            
+            When disabled, static allocation is used and window_bits,
+            lookahead_bits, and input_buffer_size must be defined at
+            compile time using the static configuration options below.
+
+    menu "Static Configuration"
+        depends on !HEATSHRINK_DYNAMIC_ALLOC
+
+        config HEATSHRINK_STATIC_WINDOW_BITS
+            int "Static window size (bits)"
+            range 4 15
+            default 8
+            help
+                Set the window size to 2^N bytes for static allocation.
+                The window size determines how far back in the input can be
+                searched for repeated patterns. A window_bits of 8 will use
+                256 bytes (2^8), while 10 will use 1024 bytes (2^10).
+                Larger values use more memory but may compress more effectively.
+
+        config HEATSHRINK_STATIC_LOOKAHEAD_BITS
+            int "Static lookahead size (bits)"
+            range 3 14
+            default 4
+            help
+                Set the lookahead size to 2^N bytes for static allocation.
+                The lookahead size determines the max length for repeated
+                patterns. Larger values may compress more effectively but
+                can also reduce compression for small patterns.
+                Must be between 3 and window_bits - 1.
+
+        config HEATSHRINK_STATIC_INPUT_BUFFER_SIZE
+            int "Static input buffer size (bytes)"
+            range 1 65535
+            default 32
+            help
+                Size of the input buffer for the decoder when using static
+                allocation. This impacts how much work the decoder can do
+                in a single step. Larger buffers use more memory.
+
+    endmenu
+
+    config HEATSHRINK_USE_INDEX
+        bool "Use index for faster compression"
+        default y
+        help
+            Enable indexing to make compression significantly faster.
+            This requires additional memory: 2^(window_size+1) bytes
+            for compression, and temporarily allocates 512 bytes on
+            the stack during index construction.
+            
+            When disabled, compression is slower but uses less memory.
+
+    config HEATSHRINK_DEBUGGING_LOGS
+        bool "Enable debugging logs"
+        default n
+        help
+            Enable debugging logs for heatshrink. Only useful for
+            development and troubleshooting.
+
+endmenu
